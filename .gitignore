@@ -1,3 +1,12 @@
+node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
 context.md
-context.md
-context.md
+repo_dump.txt
+*.db
+*.db-journal

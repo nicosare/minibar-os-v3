@@ -1,0 +1,27 @@
+# Зависимости (никогда не коммитим)
+node_modules/
+
+# Секреты
+.env
+.env.local
+.env.*.local
+
+# Логи
+*.log
+npm-debug.log*
+
+# ОС и редактор
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Служебные файлы
+context.md
+repo_dump.txt
+dist/
+build/
+
+# Локальная SQLite-база (на проде будет PostgreSQL)
+*.db
+*.db-journal

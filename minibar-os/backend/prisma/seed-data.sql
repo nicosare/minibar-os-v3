@@ -44,13 +44,13 @@ SELECT
     n AS number,
     (n / 100)::SMALLINT AS floor,
     CASE
-        WHEN n = 1818 THEN 'lux'::"RoomCategory"
-        WHEN (n % 100) = 0 THEN 'lux'::"RoomCategory"
-        WHEN (n % 100) = 34 THEN 'lux'::"RoomCategory"
-        WHEN n % 2 = 0 THEN 'standard'::"RoomCategory"
-        ELSE 'lux'::"RoomCategory"
+        WHEN n = 1818 THEN 'lux'
+        WHEN (n % 100) = 0 THEN 'lux'
+        WHEN (n % 100) = 34 THEN 'lux'
+        WHEN n % 2 = 0 THEN 'standard'
+        ELSE 'lux'
     END AS category,
-    'valid'::"ExpiryStatus",
+    'valid',
     NOW()
 FROM unnest(ARRAY[
     500,502,504,506,508,509,510,512,514,516,518,520,522,524,526,528,530,532,534,
