@@ -1,0 +1,6 @@
+{
+  "name": "MiniBar OS",
+  "description": "An operational management and tracking dashboard for hotel minibars.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

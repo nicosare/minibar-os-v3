@@ -1,0 +1,18 @@
+{
+  "name": "minibar-os",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "prisma db push --schema=minibar-os/backend/prisma/schema.prisma && node minibar-os/backend/src/seed-check.js && node minibar-os/backend/src/index.js",
+    "start": "node minibar-os/backend/src/index.js",
+    "build": "prisma generate --schema=minibar-os/backend/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  }
+}
