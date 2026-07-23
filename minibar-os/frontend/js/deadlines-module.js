@@ -44,6 +44,8 @@ App.deadlinesModule = (() => {
     if (grids.length < 3) return; // [0]=статистика, [1]=график+цели, [2]=на проверку+замены
 
     grids[0].classList.add('dl-stats-grid');
+grids[0].classList.add('stat-grid-target');
+grids[0].classList.add('stat-grid-target');
 
     const bar = document.createElement('div');
     bar.id = 'deadlines-stats-bar';
@@ -193,6 +195,25 @@ App.deadlinesModule = (() => {
     set('mstat-empty', counts.empty);
     set('mstat-needs', counts.needs_replacement);
     set('mstat-neutral', counts.neutral);
+set('stat-valid-c', counts.valid);
+set('stat-empty-c', counts.empty);
+set('stat-needs-replacement-c', counts.needs_replacement);
+set('stat-neutral-c', counts.neutral);
+set('stat-valid-pct-c', pct(counts.valid));
+set('stat-empty-pct-c', pct(counts.empty));
+set('stat-needs-pct-c', pct(counts.needs_replacement));
+set('stat-neutral-pct-c', pct(counts.neutral));
+if (window.AppStatFill) window.AppStatFill.sync();
+set('stat-valid-c', counts.valid);
+set('stat-empty-c', counts.empty);
+set('stat-needs-replacement-c', counts.needs_replacement);
+set('stat-neutral-c', counts.neutral);
+set('stat-valid-pct-c', pct(counts.valid));
+set('stat-empty-pct-c', pct(counts.empty));
+set('stat-needs-pct-c', pct(counts.needs_replacement));
+set('stat-neutral-pct-c', pct(counts.neutral));
+if (window.AppStatFill) window.AppStatFill.sync();
+syncStatFill();
   }
 
   async function renderChart() {
@@ -984,8 +1005,65 @@ App.deadlinesModule = (() => {
     App.badges.update('deadlines');
   }
 
-  function init() {
+  /* ═══ ВОЛНОВАЯ ЗАЛИВКА БЛОКОВ СТАТИСТИКИ (Сроки) + маска текста ═══ */
+const STAT_FILL_COLORS = {
+  emerald: '#059669', sky: '#0284c7', rose: '#e11d48', slate: '#475569'
+};
+function detectStatColor(card) {
+  if (card.classList.contains('from-emerald-500')) return 'emerald';
+  if (card.classList.contains('from-sky-500')) return 'sky';
+  if (card.classList.contains('from-rose-500')) return 'rose';
+  return 'slate';
+}
+let statFillBuilt = false;
+function buildStatFill() {
+  if (statFillBuilt) return;
+  const view = document.getElementById('view-deadlines');
+  if (!view) return;
+  const grid = view.querySelector('.grid.grid-cols-4');
+  if (!grid) return;
+  const cards = grid.querySelectorAll(':scope > div');
+  if (cards.length < 4) return;
+  cards.forEach(card => {
+    const color = detectStatColor(card);
+    const inner = card.innerHTML;
+    card.classList.remove('bg-gradient-to-br','from-emerald-500','to-emerald-600','from-sky-500','to-sky-600','from-rose-500','to-rose-600','from-slate-500','to-slate-600','text-white','shadow-sm','p-5');
+    card.classList.add('stat-fill-card');
+    card.dataset.color = color;
+    const base = document.createElement('div');
+    base.className = 'stat-layer stat-layer-base p-5';
+    base.innerHTML = inner;
+    const fill = document.createElement('div');
+    fill.className = 'stat-layer stat-layer-fill p-5';
+    fill.innerHTML = inner;
+    fill.querySelectorAll('[id]').forEach(el => { el.id = el.id + '-fill'; });
+    card.innerHTML = '';
+    card.appendChild(base);
+    card.appendChild(fill);
+  });
+  statFillBuilt = true;
+  if (window.lucide) lucide.createIcons();
+}
+function syncStatFill() {
+  const view = document.getElementById('view-deadlines');
+  if (!view) return;
+  view.querySelectorAll('.stat-fill-card').forEach(card => {
+    const base = card.querySelector('.stat-layer-base');
+    if (!base) return;
+    const pctEl = base.querySelector('[id$="-pct"]');
+    let pct = 0;
+    if (pctEl) { const m = (pctEl.textContent || '').match(/(\d+)/); if (m) pct = Math.max(0, Math.min(100, parseInt(m[1], 10))); }
+    card.style.setProperty('--fill', pct + '%');
+    base.querySelectorAll('[id]').forEach(el => {
+      const f = document.getElementById(el.id + '-fill');
+      if (f) f.textContent = el.textContent;
+    });
+  });
+}
+
+function init() {
     ensureMobileStructure();
+buildStatFill();
 
     if (!isInitialized) {
       document.getElementById('deadline-modal-backdrop')?.addEventListener('click', (e) => {

@@ -62,6 +62,7 @@ let isProcessing = false;
       const date = new Date(e.created_at);
       const timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
       
+      const dateStr = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth()+1).padStart(2, '0')}`;
       const safeMark = String(e.mark_number).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
       return `
         <div class="excise-card ${statusClass}" 
@@ -91,8 +92,9 @@ let isProcessing = false;
           
           <!-- Мета -->
           <div class="excise-card-meta">
-            <span>${isValid ? '✓ Валидна' : '✕ Ошибка'}</span>
-            <span>${timeStr}</span>
+            <span class="excise-meta-status">${isValid ? '✓ Валидна' : '✕ Ошибка'}</span>
+            <span class="excise-meta-time">${timeStr}</span>
+<span class="excise-meta-date">${dateStr}</span>
           </div>
         </div>
       `;
@@ -132,8 +134,8 @@ function updateStats() {
   
   // Mobile stats bar
   setText('excise-mstat-total', total);
-  setText('excise-mstat-valid', `${valid} (${pct(valid)})`);
-  setText('excise-mstat-invalid', `${invalid} (${pct(invalid)})`);
+  setText('excise-mstat-valid', valid);
+  setText('excise-mstat-invalid', invalid);
   
   // Обновляем бейдж в сайдбаре
   if (App.badges) {
@@ -171,7 +173,7 @@ function updateStats() {
         api().createExcise(converted)
   .then(saved => {
     const tempId = newItem.id;
-    if (saved._duplicate) {
+    if (saved._duplicate) { showToast('⚠️ Эта марка уже в списке');
       const idx = excises.findIndex(e => String(e.id) === String(tempId));
       if (idx !== -1) excises.splice(idx, 1);
       render();
@@ -197,7 +199,7 @@ function updateStats() {
     }
     
     input.value = '';
-    if (duplicatesCount > 0) console.log(`⚠️ Пропущено дубликатов: ${duplicatesCount}`);
+    if (duplicatesCount > 0) showToast(duplicatesCount === 1 ? '⚠️ Такая марка уже есть' : `⚠️ Пропущено дубликатов: ${duplicatesCount}`);
   }
 
   async function deleteExcise(idRaw) {
@@ -277,7 +279,7 @@ function updateStats() {
   }
 
   async function loadFromDB() {
-    if (isLoaded) return;
+    if (isLoaded) { render(); return; }
     if (!api() || !api().getExcises) {
       setTimeout(loadFromDB, 200);
       return;
@@ -330,7 +332,16 @@ function updateStats() {
   }
 
   // Бейдж — из локального списка (не из API: при удалении API ещё не успел обновиться)
-  App.badges.register('excise', async () => excises.length);
+  App.badges.register('excise', async () => {
+  if (!isLoaded && api() && api().getExcises) {
+    try {
+      const data = await api().getExcises();
+      excises = data.map(e => ({ id: e.id, mark_number: e.markNumber || e.mark_number, created_at: e.createdAt || e.created_at }));
+      isLoaded = true;
+    } catch (e) { return 0; }
+  }
+  return excises.length;
+});
 
   return { init, refresh: render, deleteExcise, copyToClipboard };
 })();
