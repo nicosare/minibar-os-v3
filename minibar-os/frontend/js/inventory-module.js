@@ -51,7 +51,27 @@ App.inventoryModule = (() => {
     return `${formatted} ${unit}`;
   }
 
-  function getProductsByCategory() {
+  function sortedFlatProducts() {
+const catIndex = (p) => {
+const i = CATEGORY_ORDER.indexOf(p.category || 'Напитки');
+return i === -1 ? 99 : i;
+};
+return [...products].sort((a, b) => {
+const d = catIndex(a) - catIndex(b);
+return d !== 0 ? d : a.name.localeCompare(b.name, 'ru');
+});
+}
+function sortedFlatProducts() {
+const catIndex = (p) => {
+const i = CATEGORY_ORDER.indexOf(p.category || 'Напитки');
+return i === -1 ? 99 : i;
+};
+return [...products].sort((a, b) => {
+const d = catIndex(a) - catIndex(b);
+return d !== 0 ? d : a.name.localeCompare(b.name, 'ru');
+});
+}
+function getProductsByCategory() {
     const grouped = {};
     products.forEach(p => {
       const cat = p.category || 'Напитки';

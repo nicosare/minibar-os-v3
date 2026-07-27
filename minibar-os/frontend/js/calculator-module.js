@@ -23,6 +23,8 @@ App.calculatorModule = (() => {
   let isLoaded = false;
   let sheetBuilt = false;
   let sheetOpen = false;
+let drawerBuilt = false;
+let drawerOpen = false;
 
   function getColorClass(color) {
     return colorMap[color] || 'bg-slate-100';
@@ -58,18 +60,26 @@ App.calculatorModule = (() => {
     renderBill();
     if (sheetOpen) {
       updateSheetCard(productId);
-      renderSheetFooter();
-    }
+renderSheetFooter();
+}
+if (drawerOpen) {
+updateDrawerCard(productId);
+renderDrawerBill();
+}
   }
 
   function clearBill() {
     cart = {};
-    renderProducts();
-    renderBill();
-    if (sheetOpen) {
-      renderSheetGrid();
-      renderSheetFooter();
-    }
+renderProducts();
+renderBill();
+if (sheetOpen) {
+renderSheetGrid();
+renderSheetFooter();
+}
+if (drawerOpen) {
+renderDrawerGrid();
+renderDrawerBill();
+}
   }
 
   function getProductsByCategory() {
@@ -584,17 +594,186 @@ App.calculatorModule = (() => {
     });
   }
 
-  async function loadProducts() {
+  // ═════════════════════════════════════════════════════════════
+// ВЫДВИЖНАЯ ПАНЕЛЬ КАЛЬКУЛЯТОРА (ДЕСКТОП) — выезжает из-под
+// сайдбара, сдвигая основной контент. Плоская сетка продуктов
+// (тап = +1, счётчик = −1) + полностью видимый счёт (без кнопки копирования).
+// ═════════════════════════════════════════════════════════════
+function buildDrawer() {
+  if (drawerBuilt) return;
+  var main = document.querySelector('main');
+  if (!main) return;
+  var drawer = document.createElement('div');
+  drawer.id = 'calc-drawer';
+  drawer.className = 'calc-drawer';
+  drawer.innerHTML =
+    '<div class="cd-head">' +
+      '<span class="cd-title"><i data-lucide="calculator" style="width:18px;height:18px;color:#0d9488"></i> Калькулятор</span>' +
+      '<button type="button" id="cd-close" class="sheet-close" aria-label="Закрыть"><i data-lucide="x"></i></button>' +
+    '</div>' +
+    '<div class="cd-body">' +
+      '<div class="cd-hint">Нажмите на продукт — добавить · на счётчик — убрать</div>' +
+      '<div id="cd-grid" class="cs-grid"></div>' +
+    '</div>' +
+    '<div class="cd-bill">' +
+      '<div class="cd-bill-head">' +
+        '<span class="cd-bill-title">Счёт</span>' +
+        '<button type="button" id="cd-clear" class="btn btn-ghost btn-sm"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Очистить</button>' +
+      '</div>' +
+      '<div id="cd-bill-list" class="cd-bill-list"></div>' +
+      '<div class="cd-bill-foot">' +
+        '<div class="total-row">' +
+          '<span class="total-row-label" id="cd-count">0 позиций</span>' +
+          '<span class="total-row-value" id="cd-total">0 ₽</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  main.before(drawer);
+  document.getElementById('cd-close').addEventListener('click', closeDrawer);
+  document.getElementById('cd-clear').addEventListener('click', function () {
+    if (Object.keys(cart).length === 0) return;
+    if (confirm('Очистить счёт?')) clearBill();
+  });
+  document.getElementById('cd-grid').addEventListener('click', function (e) {
+    var badge = e.target.closest('.cs-badge');
+    if (badge) { changeQty(parseInt(badge.dataset.productId, 10), -1); return; }
+    var card = e.target.closest('.cs-product');
+    if (card) { changeQty(parseInt(card.dataset.productId, 10), 1); }
+  });
+  document.getElementById('cd-bill-list').addEventListener('click', function (e) {
+    var del = e.target.closest('.bill-row-del');
+    if (del) changeQty(parseInt(del.dataset.productId, 10), -1);
+  });
+  drawer.addEventListener('transitionend', function (e) {
+    if (e.propertyName === 'width' || e.propertyName === 'flex-basis') {
+      window.dispatchEvent(new Event('resize'));
+    }
+  });
+  drawerBuilt = true;
+  if (window.lucide) lucide.createIcons();
+}
+function drawerCardHtml(p) {
+  var qty = getQty(p.id);
+  var emoji = p.emoji || p.name.charAt(0).toUpperCase();
+  return '<button type="button" class="cs-product' + (qty > 0 ? ' has-qty' : '') + '" data-product-id="' + p.id + '">' +
+    (qty > 0 ? '<span class="cs-badge" data-product-id="' + p.id + '">' + qty + '</span>' : '') +
+    '<span class="cs-emoji ' + getColorClass(p.bgColor) + '">' + emoji + '</span>' +
+    '<span class="cs-name">' + escapeHtml(p.name) + '</span>' +
+    '<span class="cs-price">' + formatMoney(parseFloat(p.price)) + '</span>' +
+  '</button>';
+}
+function renderDrawerGrid() {
+  var grid = document.getElementById('cd-grid');
+  if (!grid) return;
+  if (!isLoaded) {
+    grid.innerHTML = '<div class="cs-loading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Загрузка...</div>';
+    if (window.lucide) lucide.createIcons();
+    return;
+  }
+  if (products.length === 0) { grid.innerHTML = '<div class="cs-loading">Нет продуктов</div>'; return; }
+  grid.innerHTML = sortedFlatProducts().map(drawerCardHtml).join('');
+  if (window.lucide) lucide.createIcons();
+}
+function updateDrawerCard(productId) {
+  var grid = document.getElementById('cd-grid');
+  if (!grid) return;
+  var card = grid.querySelector('.cs-product[data-product-id="' + productId + '"]');
+  if (!card) return;
+  var qty = getQty(productId);
+  card.classList.toggle('has-qty', qty > 0);
+  var badge = card.querySelector('.cs-badge');
+  if (qty > 0) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'cs-badge';
+      badge.dataset.productId = productId;
+      card.insertBefore(badge, card.firstChild);
+    }
+    badge.textContent = qty;
+  } else if (badge) {
+    badge.remove();
+  }
+}
+function renderDrawerBill() {
+  var list = document.getElementById('cd-bill-list');
+  if (!list) return;
+  var entries = getBillEntries();
+  var totalQty = entries.reduce(function (s, e) { return s + e.qty; }, 0);
+  var totalSum = entries.reduce(function (s, e) { return s + e.subtotal; }, 0);
+  var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
+  set('cd-count', totalQty === 0 ? '0 позиций' : totalQty + ' ' + pluralize(totalQty, ['позиция', 'позиции', 'позиций']));
+  set('cd-total', formatMoney(totalSum));
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="cd-bill-empty">Выберите продукты</div>';
+  } else {
+    list.innerHTML = entries.map(billRowHtml).join('');
+  }
+  var clearBtn = document.getElementById('cd-clear');
+  if (clearBtn) clearBtn.disabled = entries.length === 0;
+  if (window.lucide) lucide.createIcons();
+}
+function setCalcNavHighlight(on) {
+  var nav = document.querySelector('.nav-item[data-route="calculator"]');
+  if (nav) nav.classList.toggle('nav-calc-open', on);
+}
+function openDrawer() {
+  buildDrawer();
+  if (!isLoaded && products.length === 0) loadProducts();
+  renderDrawerGrid();
+  renderDrawerBill();
+  var drawer = document.getElementById('calc-drawer');
+  if (!drawer) return;
+  drawer.classList.add('open');
+  drawerOpen = true;
+  setCalcNavHighlight(true);
+  requestAnimationFrame(function () { window.dispatchEvent(new Event('resize')); });
+}
+function closeDrawer() {
+  var drawer = document.getElementById('calc-drawer');
+  if (drawer) drawer.classList.remove('open');
+  drawerOpen = false;
+  setCalcNavHighlight(false);
+}
+function interceptDesktopCalculator() {
+  document.addEventListener('click', function (e) {
+    if (isMobile()) return;
+    var t = e.target.closest('.nav-item[data-route="calculator"]');
+    if (!t) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (drawerOpen) closeDrawer(); else openDrawer();
+  }, true);
+}
+var lastNonCalcRoute = null;
+function guardCalculatorRoute() {
+  if (!window.App || !App.events) return;
+  App.events.on('route:change', function (r) {
+    if (r === 'calculator') {
+      if (!isMobile()) {
+        openDrawer();
+        var back = lastNonCalcRoute || 'dashboard';
+        setTimeout(function () { if (App.router) App.router.go(back, false); }, 0);
+      }
+    } else {
+      lastNonCalcRoute = r;
+    }
+  });
+}
+async function loadProducts() {
     const container = document.getElementById('calculator-products-container');
     try {
       products = await api().getProducts();
       isLoaded = true;
-      renderProducts();
-      renderBill();
-      if (sheetOpen) {
-        renderSheetGrid();
-        renderSheetFooter();
-      }
+renderProducts();
+renderBill();
+if (sheetOpen) {
+renderSheetGrid();
+renderSheetFooter();
+}
+if (drawerOpen) {
+renderDrawerGrid();
+renderDrawerBill();
+}
     } catch (err) {
       console.error('Ошибка загрузки продуктов:', err);
       if (container) {
@@ -676,11 +855,15 @@ App.calculatorModule = (() => {
 
   // Перехват регистрируем сразу (не дожидаясь init),
   // чтобы работал первый же тап по «Калькулятор»
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', interceptMobileCalculator);
-  } else {
-    interceptMobileCalculator();
-  }
-
-  return { init, clearBill, changeQty, copyBill, openSheet, closeSheet };
+  function bootIntercepts() {
+interceptMobileCalculator();
+interceptDesktopCalculator();
+guardCalculatorRoute();
+}
+if (document.readyState === 'loading') {
+document.addEventListener('DOMContentLoaded', bootIntercepts);
+} else {
+bootIntercepts();
+}
+return { init, clearBill, changeQty, copyBill, openSheet, closeSheet, openDrawer, closeDrawer };
 })();
