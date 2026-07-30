@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import {
+  buildDailyDeltaStats,
   buildTargetsResponse,
   upsertTodayRoomStats,
   updateAllTargets
@@ -246,8 +247,8 @@ router.get('/stats', async (req, res) => {
     });
 
     res.json({
-      current: currentStats,
-      previous: prevStats,
+      current: buildDailyDeltaStats(currentStats),
+      previous: buildDailyDeltaStats(prevStats),
       currentMonth: parts.month,
       currentYear: parts.year
     });

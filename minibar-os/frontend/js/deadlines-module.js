@@ -43,9 +43,7 @@ App.deadlinesModule = (() => {
     const grids = view.querySelectorAll('.grid.grid-cols-4');
     if (grids.length < 3) return; // [0]=статистика, [1]=график+цели, [2]=на проверку+замены
 
-    grids[0].classList.add('dl-stats-grid');
-grids[0].classList.add('stat-grid-target');
-grids[0].classList.add('stat-grid-target');
+    grids[0].classList.add('dl-stats-grid', 'stat-grid-target');
 
     const bar = document.createElement('div');
     bar.id = 'deadlines-stats-bar';
@@ -195,25 +193,18 @@ grids[0].classList.add('stat-grid-target');
     set('mstat-empty', counts.empty);
     set('mstat-needs', counts.needs_replacement);
     set('mstat-neutral', counts.neutral);
-set('stat-valid-c', counts.valid);
-set('stat-empty-c', counts.empty);
-set('stat-needs-replacement-c', counts.needs_replacement);
-set('stat-neutral-c', counts.neutral);
-set('stat-valid-pct-c', pct(counts.valid));
-set('stat-empty-pct-c', pct(counts.empty));
-set('stat-needs-pct-c', pct(counts.needs_replacement));
-set('stat-neutral-pct-c', pct(counts.neutral));
-if (window.AppStatFill) window.AppStatFill.sync();
-set('stat-valid-c', counts.valid);
-set('stat-empty-c', counts.empty);
-set('stat-needs-replacement-c', counts.needs_replacement);
-set('stat-neutral-c', counts.neutral);
-set('stat-valid-pct-c', pct(counts.valid));
-set('stat-empty-pct-c', pct(counts.empty));
-set('stat-needs-pct-c', pct(counts.needs_replacement));
-set('stat-neutral-pct-c', pct(counts.neutral));
-if (window.AppStatFill) window.AppStatFill.sync();
-syncStatFill();
+
+    set('stat-valid-c', counts.valid);
+    set('stat-empty-c', counts.empty);
+    set('stat-needs-replacement-c', counts.needs_replacement);
+    set('stat-neutral-c', counts.neutral);
+    set('stat-valid-pct-c', pct(counts.valid));
+    set('stat-empty-pct-c', pct(counts.empty));
+    set('stat-needs-pct-c', pct(counts.needs_replacement));
+    set('stat-neutral-pct-c', pct(counts.neutral));
+
+    if (window.AppStatFill) window.AppStatFill.sync();
+    syncStatFill();
   }
 
   async function renderChart() {

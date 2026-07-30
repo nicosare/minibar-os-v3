@@ -613,11 +613,14 @@ function buildDrawer() {
     '</div>' +
     '<div class="cd-body">' +
       '<div class="cd-hint">Нажмите на продукт — добавить · на счётчик — убрать</div>' +
-      '<div id="cd-grid" class="cs-grid"></div>' +
+      '<div id="cd-grid" class="cd-grid"></div>' +
     '</div>' +
     '<div class="cd-bill">' +
-      '<div class="cd-bill-head">' +
+      '<div class="cd-bill-head" id="cd-bill-head">' +
         '<span class="cd-bill-title">Счёт</span>' +
+        '<div class="cd-spacer"></div>' +
+        '<span class="cd-head-summary" id="cd-head-summary">0 ₽</span>' +
+        '<i data-lucide="chevron-down" class="cd-chevron" aria-hidden="true"></i>' +
         '<button type="button" id="cd-clear" class="btn btn-ghost btn-sm"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Очистить</button>' +
       '</div>' +
       '<div id="cd-bill-list" class="cd-bill-list"></div>' +
@@ -635,9 +638,9 @@ function buildDrawer() {
     if (confirm('Очистить счёт?')) clearBill();
   });
   document.getElementById('cd-grid').addEventListener('click', function (e) {
-    var badge = e.target.closest('.cs-badge');
+    var badge = e.target.closest('.cd-badge');
     if (badge) { changeQty(parseInt(badge.dataset.productId, 10), -1); return; }
-    var card = e.target.closest('.cs-product');
+    var card = e.target.closest('.cd-product');
     if (card) { changeQty(parseInt(card.dataset.productId, 10), 1); }
   });
   document.getElementById('cd-bill-list').addEventListener('click', function (e) {
@@ -649,19 +652,29 @@ function buildDrawer() {
       window.dispatchEvent(new Event('resize'));
     }
   });
+  // Toggle collapse of bill on head click (avoid when clicking clear button)
+  var billHead = drawer.querySelector('#cd-bill-head');
+  var billPanel = drawer.querySelector('.cd-bill');
+  if (billHead && billPanel) {
+    billHead.addEventListener('click', function (e) {
+      if (e.target.closest('#cd-clear')) return; // don't toggle when clearing
+      billPanel.classList.toggle('collapsed');
+    });
+  }
   drawerBuilt = true;
   if (window.lucide) lucide.createIcons();
 }
 function drawerCardHtml(p) {
-  var qty = getQty(p.id);
-  var emoji = p.emoji || p.name.charAt(0).toUpperCase();
-  return '<button type="button" class="cs-product' + (qty > 0 ? ' has-qty' : '') + '" data-product-id="' + p.id + '">' +
-    (qty > 0 ? '<span class="cs-badge" data-product-id="' + p.id + '">' + qty + '</span>' : '') +
-    '<span class="cs-emoji ' + getColorClass(p.bgColor) + '">' + emoji + '</span>' +
-    '<span class="cs-name">' + escapeHtml(p.name) + '</span>' +
-    '<span class="cs-price">' + formatMoney(parseFloat(p.price)) + '</span>' +
-  '</button>';
+var qty = getQty(p.id);
+var emoji = p.emoji || p.name.charAt(0).toUpperCase();
+return '<button type="button" class="cd-product' + (qty > 0 ? ' has-qty' : '') + '" data-product-id="' + p.id + '">' +
+(qty > 0 ? '<span class="cd-badge" data-product-id="' + p.id + '">' + qty + '</span>' : '') +
+'<span class="cd-emoji ' + getColorClass(p.bgColor) + '">' + emoji + '</span>' +
+'<span class="cd-name">' + escapeHtml(p.name) + '</span>' +
+'<span class="cd-price">' + formatMoney(parseFloat(p.price)) + '</span>' +
+'</button>';
 }
+
 function renderDrawerGrid() {
   var grid = document.getElementById('cd-grid');
   if (!grid) return;
@@ -675,25 +688,26 @@ function renderDrawerGrid() {
   if (window.lucide) lucide.createIcons();
 }
 function updateDrawerCard(productId) {
-  var grid = document.getElementById('cd-grid');
-  if (!grid) return;
-  var card = grid.querySelector('.cs-product[data-product-id="' + productId + '"]');
-  if (!card) return;
-  var qty = getQty(productId);
-  card.classList.toggle('has-qty', qty > 0);
-  var badge = card.querySelector('.cs-badge');
-  if (qty > 0) {
-    if (!badge) {
-      badge = document.createElement('span');
-      badge.className = 'cs-badge';
-      badge.dataset.productId = productId;
-      card.insertBefore(badge, card.firstChild);
-    }
-    badge.textContent = qty;
-  } else if (badge) {
-    badge.remove();
-  }
+var grid = document.getElementById('cd-grid');
+if (!grid) return;
+var card = grid.querySelector('.cd-product[data-product-id="' + productId + '"]');
+if (!card) return;
+var qty = getQty(productId);
+card.classList.toggle('has-qty', qty > 0);
+var badge = card.querySelector('.cd-badge');
+if (qty > 0) {
+if (!badge) {
+badge = document.createElement('span');
+badge.className = 'cd-badge';
+badge.dataset.productId = productId;
+card.insertBefore(badge, card.firstChild);
 }
+badge.textContent = qty;
+} else if (badge) {
+badge.remove();
+}
+}
+
 function renderDrawerBill() {
   var list = document.getElementById('cd-bill-list');
   if (!list) return;
@@ -703,6 +717,8 @@ function renderDrawerBill() {
   var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
   set('cd-count', totalQty === 0 ? '0 позиций' : totalQty + ' ' + pluralize(totalQty, ['позиция', 'позиции', 'позиций']));
   set('cd-total', formatMoney(totalSum));
+set('cd-head-summary', formatMoney(totalSum));
+set('cd-head-summary', formatMoney(totalSum));
   if (entries.length === 0) {
     list.innerHTML = '<div class="cd-bill-empty">Выберите продукты</div>';
   } else {
@@ -807,10 +823,20 @@ renderDrawerBill();
       renderProducts();
     });
 
-    document.getElementById('calculator-clear-btn')?.addEventListener('click', () => {
+    document.getElementById('calculator-clear-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (Object.keys(cart).length === 0) return;
       if (confirm('Очистить счёт?')) clearBill();
     });
+
+    const billPanel = document.querySelector('#view-calculator .side-panel');
+    const billHeader = billPanel?.querySelector('.side-panel-header');
+    if (billHeader) {
+      billHeader.addEventListener('click', (e) => {
+        if (e.target.closest('#calculator-clear-btn')) return;
+        billPanel.classList.toggle('collapsed');
+      });
+    }
 
     document.getElementById('calculator-copy-btn')?.addEventListener('click', copyBill);
     document.getElementById('calculator-bill-modal-copy')?.addEventListener('click', copyBill);

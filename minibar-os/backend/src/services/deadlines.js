@@ -110,6 +110,23 @@ export async function upsertTodayRoomStats(tx, offsetMinutes = null) {
   });
 }
 
+export function buildDailyDeltaStats(stats = []) {
+  return stats.reduce((acc, entry, index) => {
+    const previous = index > 0 ? stats[index - 1] : null;
+    const baseline = previous || { validCount: 0, emptyCount: 0, needsReplacementCount: 0, neutralCount: 0 };
+
+    acc.push({
+      ...entry,
+      validCount: Math.max(0, (entry.validCount || 0) - (baseline.validCount || 0)),
+      emptyCount: Math.max(0, (entry.emptyCount || 0) - (baseline.emptyCount || 0)),
+      needsReplacementCount: Math.max(0, (entry.needsReplacementCount || 0) - (baseline.needsReplacementCount || 0)),
+      neutralCount: Math.max(0, (entry.neutralCount || 0) - (baseline.neutralCount || 0))
+    });
+
+    return acc;
+  }, []);
+}
+
 export async function buildTargetsResponse(tx, offsetMinutes = null) {
   const todayTarget = await ensureTodayTarget(tx, offsetMinutes);
   const tomorrowData = await recalcTomorrowTarget(tx, offsetMinutes);

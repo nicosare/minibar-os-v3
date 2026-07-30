@@ -61,16 +61,6 @@ const d = catIndex(a) - catIndex(b);
 return d !== 0 ? d : a.name.localeCompare(b.name, 'ru');
 });
 }
-function sortedFlatProducts() {
-const catIndex = (p) => {
-const i = CATEGORY_ORDER.indexOf(p.category || 'Напитки');
-return i === -1 ? 99 : i;
-};
-return [...products].sort((a, b) => {
-const d = catIndex(a) - catIndex(b);
-return d !== 0 ? d : a.name.localeCompare(b.name, 'ru');
-});
-}
 function getProductsByCategory() {
     const grouped = {};
     products.forEach(p => {
@@ -82,6 +72,7 @@ function getProductsByCategory() {
   }
 
   function renderTabs() {
+return; // категории отключены — плоский список
     const tabsEl = document.getElementById('inventory-tabs');
     if (!tabsEl) return;
     const groups = getProductsByCategory();
@@ -96,52 +87,41 @@ function getProductsByCategory() {
   }
 
   function renderProducts() {
-    const container = document.getElementById('inventory-products-container');
-    if (!container) return;
-    renderTabs();
-
-    if (products.length === 0) {
-      container.innerHTML = '<div class="text-center py-12 text-slate-400 text-sm">Нет продуктов</div>';
-      return;
-    }
-
-    const groups = getProductsByCategory();
-    const group = groups.find(g => g.name === activeCategory) || groups[0];
-
-    if (group.items.length === 0) {
-      container.innerHTML = '<div class="text-center py-12 text-slate-400 text-sm">Нет продуктов в этой категории</div>';
-      return;
-    }
-
-    container.innerHTML = group.items.map(p => {
-      const entry = getEntry(p.id);
-      const qty = getQtySum(p.id);
-      const totalVol = getTotalVolume(p);
-      const emoji = p.emoji || p.name.charAt(0).toUpperCase();
-      return `
-        <div class="product-card inv-card${qty > 0 ? ' has-qty' : ''}" data-product-id="${p.id}">
-          <div class="product-card-emoji ${getColorClass(p.bgColor)}">${emoji}</div>
-          <div class="product-card-info">
-            <div class="product-card-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
-            <div class="product-card-meta">${p.volume || '—'} ${p.unit || 'шт'}</div>
-          </div>
-          <div class="inv-fields">
-            <input type="text" class="inv-field" maxlength="4" placeholder="0" value="${entry.a}"
-                   data-product-id="${p.id}" data-field="a" inputmode="numeric" autocomplete="off" />
-            <span class="inv-plus">+</span>
-            <input type="text" class="inv-field" maxlength="4" placeholder="0" value="${entry.b}"
-                   data-product-id="${p.id}" data-field="b" inputmode="numeric" autocomplete="off" />
-          </div>
-          <div class="inv-result">
-            <span class="inv-result-qty">= ${qty}</span>
-            <span class="inv-result-vol">${formatVolume(p, totalVol)}</span>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // Точечное обновление карточки при вводе (чтобы не терять фокус)
+const container = document.getElementById('inventory-products-container');
+if (!container) return;
+if (products.length === 0) {
+container.innerHTML = '<div class="text-center py-12 text-slate-400 text-sm">Нет продуктов</div>';
+return;
+}
+const list = sortedFlatProducts();
+container.innerHTML = list.map(p => {
+const entry = getEntry(p.id);
+const qty = getQtySum(p.id);
+const totalVol = getTotalVolume(p);
+const emoji = p.emoji || p.name.charAt(0).toUpperCase();
+return `
+<div class="product-card inv-card${qty > 0 ? ' has-qty' : ''}" data-product-id="${p.id}">
+<div class="product-card-emoji ${getColorClass(p.bgColor)}">${emoji}</div>
+<div class="product-card-info">
+<div class="product-card-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
+<div class="product-card-meta">${p.volume || '—'} ${p.unit || 'шт'}</div>
+</div>
+<div class="inv-fields">
+<input type="text" class="inv-field" maxlength="4" placeholder="0" value="${entry.a}"
+data-product-id="${p.id}" data-field="a" inputmode="numeric" autocomplete="off" />
+<span class="inv-plus">+</span>
+<input type="text" class="inv-field" maxlength="4" placeholder="0" value="${entry.b}"
+data-product-id="${p.id}" data-field="b" inputmode="numeric" autocomplete="off" />
+</div>
+<div class="inv-result">
+<span class="inv-result-qty">= ${qty}</span>
+<span class="inv-result-vol">${formatVolume(p, totalVol)}</span>
+</div>
+</div>
+`;
+}).join('');
+}
+// Точечное обновление карточки при вводе (чтобы не терять фокус)
   function updateProductSummary(productId) {
     const product = products.find(p => p.id === productId);
     const card = document.querySelector(`.inv-card[data-product-id="${productId}"]`);

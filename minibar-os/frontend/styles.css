@@ -1443,7 +1443,7 @@
 /* Макет: продукты + боковая панель */
 .split-layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr minmax(280px, 320px);
   gap: 20px;
   align-items: start;
 }
@@ -1451,7 +1451,7 @@
 /* Сетка продуктов */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
 }
 
@@ -1491,10 +1491,10 @@
 
 /* Калькулятор: карточка с количеством */
 .calc-card.has-qty { border-color: #5eead4; background: #f0fdfa; }
-.calc-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.calc-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .calc-qty-btn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1509,7 +1509,7 @@
 .calc-qty-btn:active:not(:disabled) { transform: scale(0.92); }
 .calc-qty-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .calc-qty-value {
-  min-width: 28px;
+  min-width: 24px;
   text-align: center;
   font-size: 15px;
   font-weight: 700;
@@ -1557,6 +1557,12 @@
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+.side-panel.collapsed .side-panel-body,
+.side-panel.collapsed .side-panel-footer,
+.side-panel.collapsed .side-panel-empty {
+  display: none;
 }
 .side-panel-title { font-size: 15px; font-weight: 700; color: #0f172a; }
 .side-panel-body { padding: 8px 20px; max-height: 400px; overflow-y: auto; }
@@ -2987,57 +2993,27 @@
 .stat-fill-card[data-color="slate"] .stat-layer-base{ color:#475569; }
 .stat-fill-card[data-color="slate"] .stat-layer-fill{ background:linear-gradient(135deg,#64748b 0%,#475569 100%); }
 
-/* ═══ КЛОН СТАТИСТИКИ В МОБИЛЬНОЙ ШТОРКЕ «АНАЛИТИКА» (2x2, только телефон) ═══ */
+/* ═══ КЛОН СТАТИСТИКИ В МОБИЛЬНОЙ ШТОРКЕ «АНАЛИТИКА» — консолидированная версия ═══ */
 .dl-stats-clone{ display:none !important; }
-@media (max-width:768px){
-  .dl-stats-clone{ display:grid !important; grid-template-columns:repeat(2,1fr) !important; gap:10px !important; margin-top:18px; }
-  .dl-stats-clone .stat-fill-card{ min-height:96px; }
-  .dl-stats-clone .stat-layer-base,.dl-stats-clone .stat-layer-fill{ padding:14px !important; }
-  .dl-stats-clone .text-3xl{ font-size:1.4rem !important; }
-}
-/* ═══ БЕЙДЖИ НАВБАРА: СЕРЫЕ НА НЕАКТИВНОЙ ВКЛАДКЕ (ПК + мобайл) ═══ */
-.nav-item:not(.active) .badge{ background:#f1f5f9 !important; color:#94a3b8 !important; border-color:#e2e8f0 !important; }
-.mobile-tab:not(.active) .mt-badge{ background:#94a3b8 !important; box-shadow:0 0 0 2px #fff !important; }
-
-/* ═══ КЛОН СТАТИСТИКИ В МОБИЛЬНОЙ ШТОРКЕ «АНАЛИТИКА» (2x2, только телефон) ═══ */
-.dl-stats-clone{ display:none !important; }
-@media (max-width:768px){
-  .dl-stats-clone{ display:grid !important; grid-template-columns:repeat(2,1fr) !important; gap:10px !important; margin-top:18px; }
-  .dl-stats-clone .stat-fill-card{ min-height:96px; }
-  .dl-stats-clone .stat-layer-base,.dl-stats-clone .stat-layer-fill{ padding:14px !important; }
-  .dl-stats-clone .text-3xl{ font-size:1.4rem !important; }
-}
-/* ═══ БЕЙДЖИ НАВБАРА: СЕРЫЕ НА НЕАКТИВНОЙ ВКЛАДКЕ (ПК + мобайл) ═══ */
-.nav-item:not(.active) .badge{ background:#f1f5f9 !important; color:#94a3b8 !important; border-color:#e2e8f0 !important; }
-.mobile-tab:not(.active) .mt-badge{ background:#94a3b8 !important; box-shadow:0 0 0 2px #fff !important; }
-
-/* ═══ КЛОН СТАТИСТИКИ В ШТОРКЕ «АНАЛИТИКА»: 4 ВЕРТИКАЛЬНЫХ СТОЛБИКА (телефон) ═══ */
-.dl-stats-clone{ display:none; }
 @media (max-width:768px){
   .dl-stats-clone{
     display:grid !important;
     grid-template-columns:repeat(4,1fr) !important;
-    gap:8px !important;
-    margin-top:20px;
+    gap:10px !important;
+    margin-top:18px !important;
   }
-  .dl-stats-clone .dl-clone-card{
-    position:relative; overflow:hidden; isolation:isolate;
-    border-radius:12px; min-height:108px;
-    box-shadow:0 1px 3px rgba(15,23,42,.06);
-  }
-  .dl-stats-clone .dl-clone-card .stat-layer{
-    box-sizing:border-box; width:100%;
-    display:flex; flex-direction:column; align-items:center; gap:8px; padding:12px 4px 14px; text-align:center;
-  }
-  .dl-clone-label{
-    font-size:9px; font-weight:700; text-transform:uppercase;
-    letter-spacing:.02em; line-height:1.15; opacity:.95;
-  }
-  .dl-clone-num{
-    font-size:1.45rem; font-weight:800; line-height:1;
-    font-variant-numeric:tabular-nums;
-  }
+  .dl-stats-clone .stat-fill-card{ min-height:96px; }
+  .dl-stats-clone .dl-clone-card{ position:relative; overflow:hidden; isolation:isolate; border-radius:12px; min-height:108px; box-shadow:0 1px 3px rgba(15,23,42,.06); }
+  .dl-stats-clone .stat-layer-base,.dl-stats-clone .stat-layer-fill{ padding:14px !important; }
+  .dl-stats-clone .dl-clone-card .stat-layer{ box-sizing:border-box; width:100%; display:flex; flex-direction:column; align-items:center; gap:8px; padding:12px 4px 14px; text-align:center; }
+  .dl-stats-clone .text-3xl{ font-size:1.4rem !important; }
+  .dl-clone-label{ font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; line-height:1.15; opacity:.95; }
+  .dl-clone-num{ font-size:1.45rem; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
 }
+
+/* ═══ БЕЙДЖИ НАВБАРА: серые на неактивной вкладке (консолидация) ═══ */
+.nav-item:not(.active) .badge{ background:#f1f5f9 !important; color:#94a3b8 !important; border-color:#e2e8f0 !important; }
+.mobile-tab:not(.active) .mt-badge{ background:#94a3b8 !important; box-shadow:0 0 0 2px #fff !important; }
 
 /* ═══ FIX m25: заголовок шторки «Аналитика» скрыт на ПК (на телефоне виден в шторке) ═══ */
 .dl-details-header{ display:none !important; }
@@ -3075,8 +3051,8 @@
     transition:flex-basis .34s cubic-bezier(.32,.72,.24,1), width .34s cubic-bezier(.32,.72,.24,1), box-shadow .34s ease;
     box-shadow:6px 0 24px rgba(15,23,42,0);
   }
-  .calc-drawer.open{ flex:0 0 400px; width:400px; box-shadow:6px 0 24px rgba(15,23,42,.07); }
-  .calc-drawer > *{ width:400px; }
+  .calc-drawer.open{ flex:0 0 440px; width:440px; box-shadow:6px 0 24px rgba(15,23,42,.07); }
+  .calc-drawer > *{ width:440px; }
   .cd-head{
     display:flex; align-items:center; justify-content:space-between;
     padding:18px 20px; border-bottom:1px solid #f1f5f9; flex:0 0 auto;
@@ -3105,13 +3081,15 @@
 }
 /* На узких десктопах ящик поуже, чтобы main не схлопывался */
 @media (min-width:769px) and (max-width:1180px){
-  .calc-drawer.open{ flex:0 0 340px; width:340px; }
-  .calc-drawer > *{ width:340px; }
+  .calc-drawer.open{ flex:0 0 380px; width:380px; }
+  .calc-drawer > *{ width:380px; }
 }
 @media (max-width:768px){
   .calc-drawer{ display:none !important; }
 }
 
+
+
 /* ═══ ИНВЕНТАРИЗАЦИЯ v2: без категорий + двухэтажная карточка (grid, только ПК) ═══ */
 /* Пустая полоса вкладок скрывается (вкладки больше не рисуются) */
 #inventory-tabs:empty{ display:none !important; }
@@ -3139,29 +3117,85 @@
   .inv-card .inv-result{ grid-area:r; justify-self:end; }
 }
 
-/* ═══ ИНВЕНТАРИЗАЦИЯ v2: без категорий + двухэтажная карточка (grid, только ПК) ═══ */
-/* Пустая полоса вкладок скрывается (вкладки больше не рисуются) */
-#inventory-tabs:empty{ display:none !important; }
-/* Объём и название — всегда в одну строку, без кривого переноса */
-.inv-card .product-card-name{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.inv-card .product-card-meta{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-/* Лёгкая «живость»: плавные переходы + приподнимание при наведении */
-.inv-card{ transition: border-color .15s ease, box-shadow .18s ease, background .15s ease, transform .15s ease; }
-.inv-card:hover{ transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,23,42,.08); }
-.inv-card.has-qty{ box-shadow: 0 6px 18px rgba(37,99,235,.12); }
-.inv-result-qty, .inv-result-vol{ transition: color .15s ease; }
-/* Десктоп: карточка = grid из двух строк → ничего не обрезается на любой ширине */
-@media (min-width:769px){
-  #inventory-products-container.products-grid{ grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important; }
-  .inv-card{
+/* ═══ КАЛЬКУЛЯТОР v3: компактная карточка ящика (иконка+название в строку) ═══ */
+.cd-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.cd-product{
+position:relative; display:flex; align-items:center; gap:8px;
+padding:6px 8px; border:1.5px solid var(--border); border-radius:12px;
+background:#fff; cursor:pointer; text-align:left; font:inherit;
+transition:border-color .15s ease, background .15s ease, transform .1s ease;
+-webkit-tap-highlight-color:transparent;
+}
+.cd-product:active{ transform:scale(.97); }
+.cd-product.has-qty{ border-color:#5eead4; background:#f0fdfa; }
+.cd-emoji{ width:22px; height:22px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.cd-name{ flex:1; min-width:0; font-size:13px; font-weight:600; color:#0f172a; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cd-price{ font-size:11px; color:#64748b; font-variant-numeric:tabular-nums; flex-shrink:0; }
+.cd-badge{ position:absolute; top:-7px; right:-7px; min-width:20px; height:20px; padding:0 5px; border-radius:10px; background:#0d9488; color:#fff; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; border:2px solid #fff; box-shadow:0 2px 6px rgba(13,148,136,.4); font-variant-numeric:tabular-nums; }
+/* ═══ КАЛЬКУЛЯТОР v3: сворачиваемый счёт в ящике ═══ */
+.cd-bill-head{ justify-content:flex-start !important; gap:8px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.cd-spacer{ flex:1 1 auto; }
+.cd-head-summary{ display:none; font-size:13px; font-weight:800; color:#0f172a; font-variant-numeric:tabular-nums; }
+.cd-chevron{ width:16px; height:16px; color:#94a3b8; flex-shrink:0; transition:transform .22s ease; }
+.cd-bill.collapsed{ min-height:0 !important; max-height:none !important; }
+.cd-bill.collapsed .cd-head-summary{ display:inline; }
+.cd-bill.collapsed .cd-bill-list,
+.cd-bill.collapsed .cd-bill-foot{ display:none !important; }
+.cd-bill.collapsed .cd-chevron{ transform:rotate(180deg); }
+
+/* ═══ КАЛЬКУЛЯТОР-ЯЩИК (ПК): компактная сетка 2 колонки, без горизонтального скролла + сворачивание счёта ═══ */
+@media (min-width:800px){
+  .cd-body{ overflow-x:hidden !important; }
+  /* Сетка: ровно 2 колонки, minmax(0,1fr) чтобы длинное имя не растягивало колонку */
+  .cd-grid{
     display:grid !important;
-    grid-template-columns: auto minmax(0,1fr) auto;
-    grid-template-areas: "e i i" "f f r";
-    align-items:center !important;
-    column-gap:12px; row-gap:12px;
+    grid-template-columns:repeat(2, minmax(0,1fr)) !important;
+    gap:8px !important;
   }
-  .inv-card .product-card-emoji{ grid-area:e; }
-  .inv-card .product-card-info{ grid-area:i; min-width:0; }
-  .inv-card .inv-fields{ grid-area:f; justify-self:start; }
-  .inv-card .inv-result{ grid-area:r; justify-self:end; }
+  /* Карточка = компактная горизонтальная строка */
+  .cd-product{
+    position:relative;
+    display:flex !important; flex-direction:row !important; align-items:center !important;
+    gap:8px !important; padding:7px 9px !important;
+    border:1.5px solid var(--border); border-radius:11px;
+    background:#fff; cursor:pointer; text-align:left; font:inherit;
+    min-width:0 !important;
+    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease, transform .1s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .cd-product:hover{ border-color:#cbd5e1; box-shadow:0 3px 10px rgba(15,23,42,.06); }
+  .cd-product:active{ transform:scale(.97); }
+  .cd-product.has-qty{ border-color:#5eead4; background:#f0fdfa; }
+  .cd-product-emoji{
+    width:22px !important; height:22px !important; border-radius:7px !important;
+    display:flex !important; align-items:center !important; justify-content:center !important;
+    font-size:13px !important; flex-shrink:0 !important;
+  }
+  .cd-product-name{
+    flex:1 !important; min-width:0 !important;
+    font-size:12.5px !important; font-weight:600 !important; color:#0f172a !important;
+    line-height:1.2 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important;
+  }
+  .cd-product-price{
+    font-size:11px !important; color:#64748b !important; font-variant-numeric:tabular-nums !important;
+    flex-shrink:0 !important; white-space:nowrap !important;
+  }
+  .cd-badge{
+    position:absolute; top:-7px; right:-7px;
+    min-width:18px; height:18px; padding:0 5px; border-radius:9px;
+    background:#0d9488; color:#fff; font-size:10px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid #fff; box-shadow:0 2px 6px rgba(13,148,136,.4);
+    font-variant-numeric:tabular-nums; animation:cs-badge-pop .2s ease;
+  }
+  /* Сворачивание счёта по клику на шапку */
+  .cd-bill-head{ cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .cd-spacer{ flex:1 1 auto; }
+  .cd-head-summary{ display:none; font-size:13px; font-weight:800; color:#0f172a; font-variant-numeric:tabular-nums; }
+  .cd-chevron{ width:16px; height:16px; color:#94a3b8; flex-shrink:0; transition:transform .22s ease; }
+  .cd-bill.collapsed{ min-height:0 !important; max-height:none !important; }
+  .cd-bill.collapsed .cd-head-summary{ display:inline; }
+  .cd-bill.collapsed .cd-bill-list,
+  .cd-bill.collapsed .cd-bill-foot{ display:none !important; }
+  .cd-bill.collapsed .cd-chevron{ transform:rotate(180deg); }
 }
