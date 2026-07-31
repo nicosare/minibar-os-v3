@@ -126,6 +126,7 @@ model Check {
   type           String
   gihRoomStatus  String?     @map("gih_room_status")
   inspectorName  String?     @map("inspector_name")
+  status         String      @default("draft") @map("status")
   notes          String?
   createdAt      DateTime    @default(now()) @map("created_at")
 
@@ -139,13 +140,13 @@ model GihItem {
   id         Int       @id @default(autoincrement())
   checkId    Int       @map("check_id")
   productId  Int       @map("product_id")
-  itemStatus String    @default("in_place") @map("item_status")
+  itemStatus String    @default("pending") @map("item_status")
   notes      String?
 
   check   Check   @relation(fields: [checkId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
-  @@unique([checkId, productId])
+  @@index([checkId, productId])
   @@map("gih_items")
 }
 

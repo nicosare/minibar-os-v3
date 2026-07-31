@@ -22,7 +22,7 @@ App.events.on('route:change', (route) => {
     initModuleWhenApiReady('dashboard', () => App.dashboardModule.init());
   }
 
-  if ((route === 'arrivals' || route === 'departures' || route === 'gih') && App.listsModule) {
+  if ((route === 'arrivals' || route === 'departures') && App.listsModule) {
     initModuleWhenApiReady('lists', () => App.listsModule.init());
   }
 
@@ -48,5 +48,8 @@ App.events.on('route:change', (route) => {
 
   if (route === 'inventory' && App.inventoryModule) {
     initModuleWhenApiReady('inventory', () => App.inventoryModule.init());
+  }
+  if (route === 'gih' && App.gihModule) {
+    initModuleWhenApiReady('gih', () => App.gihModule.init());
   }
 });

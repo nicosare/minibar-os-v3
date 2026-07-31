@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (initialRoute === 'dashboard' && App.dashboardModule) {
         App.dashboardModule.init();
       }
-      if ((initialRoute === 'arrivals' || initialRoute === 'departures' || initialRoute === 'gih') && App.listsModule) {
+      if ((initialRoute === 'arrivals' || initialRoute === 'departures') && App.listsModule) {
         App.listsModule.init();
       }
       if (initialRoute === 'history' && App.historyModule) {
@@ -46,6 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (initialRoute === 'inventory' && App.inventoryModule) {
         App.inventoryModule.init();
+      }
+      if (initialRoute === 'gih' && App.gihModule) {
+        App.gihModule.init();
       }
     } catch (e) {
       console.warn('Bootstrap failed:', e);

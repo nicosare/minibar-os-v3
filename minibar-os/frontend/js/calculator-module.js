@@ -719,6 +719,7 @@ function renderDrawerBill() {
   set('cd-total', formatMoney(totalSum));
 set('cd-head-summary', formatMoney(totalSum));
 set('cd-head-summary', formatMoney(totalSum));
+set('cd-head-summary', formatMoney(totalSum));
   if (entries.length === 0) {
     list.innerHTML = '<div class="cd-bill-empty">Выберите продукты</div>';
   } else {

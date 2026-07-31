@@ -137,6 +137,18 @@ const api = {
     return apiRequest(`/deadlines/replacement-summary?_t=${Date.now()}`, {
       cache: 'no-store'
     });
+  },
+  async getGihChecks() {
+    return apiRequest(`/checks?type=gih&_t=${Date.now()}`, { cache: 'no-store' });
+  },
+  async createGihCheck(payload) {
+    return apiRequest('/checks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  },
+  async updateGihCheck(id, payload) {
+    return apiRequest(`/checks/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  },
+  async deleteGihCheck(id) {
+    return apiRequest(`/checks/${id}`, { method: 'DELETE' });
   }
 };
 

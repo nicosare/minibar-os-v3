@@ -87,6 +87,7 @@
   function badgeHtml(route) {
     if (route === 'excise') return '<span class="mt-badge b-amber hidden" id="excise-badge-m">0</span>';
     if (route === 'deadlines') return '<span class="mt-badge b-rose hidden" id="deadlines-badge-m">0</span>';
+if (route === 'gih') return '<span class="mt-badge b-violet hidden" id="gih-badge-m">0</span>';
     return '';
   }
 
@@ -175,7 +176,7 @@
   }
 
   function mirrorBadges() {
-    ['excise', 'deadlines'].forEach(function (name) {
+    ['excise', 'deadlines', 'gih'].forEach(function (name) {
       var src = document.getElementById(name + '-badge');
       var dst = document.getElementById(name + '-badge-m');
       if (src && dst) {
