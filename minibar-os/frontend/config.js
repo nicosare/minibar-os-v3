@@ -75,6 +75,9 @@ const api = {
       body: JSON.stringify(data)
     });
   },
+  async reorderProducts(order) {
+    return apiRequest('/products/reorder', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order }) });
+  },
   async deleteProduct(id) {
     return apiRequest(`/products/${id}`, { method: 'DELETE' });
   },

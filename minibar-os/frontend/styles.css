@@ -3403,3 +3403,99 @@ transition:border-color .15s ease, background .15s ease, transform .1s ease;
 .gih-card-foot{ display:flex; align-items:center; justify-content:flex-end; gap:10px; }
 .gih-save-hint{ margin-right:auto; font-size:11px; color:#94a3b8; }
 .mt-badge.b-violet{ background:#7c3aed; }
+
+/* ═══ НАСТРОЙКИ: drag-reorder продуктов и шаблонов (в стиле мобильного навбара) ═══ */
+.gih-prod-list{ display:flex; flex-direction:column; gap:8px; }
+.prod-head, .prod-row{ display:grid; grid-template-columns:30px 40px minmax(0,1fr) 76px 84px 56px 84px; align-items:center; gap:10px; }
+.prod-head{ padding:6px 12px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#94a3b8; }
+.prod-row{ padding:10px 12px; background:#fff; border:1px solid #eef2f6; border-radius:14px; transition:box-shadow .15s ease, border-color .15s ease; }
+.prod-row:hover{ border-color:#e2e8f0; box-shadow:0 4px 14px rgba(15,23,42,.06); }
+.prod-row.is-dragging, .template-item.is-dragging{ cursor:grabbing; }
+.prod-handle{ display:flex; align-items:center; justify-content:center; color:#cbd5e1; cursor:grab; transition:color .15s ease; }
+.prod-handle:hover{ color:#64748b; }
+.prod-c-emo, .prod-c-act{ display:flex; }
+.prod-c-act{ justify-content:flex-end; gap:2px; }
+.prod-c-price{ text-align:right; font-variant-numeric:tabular-nums; color:#334155; font-size:13px; }
+.prod-c-vol{ color:#64748b; font-size:13px; }
+.prod-c-exp{ text-align:center; }
+.template-item{ position:relative; }
+@media (max-width:768px){
+  .prod-head{ display:none; }
+  .prod-row{ grid-template-columns:28px 36px minmax(0,1fr) auto auto; gap:8px; padding:9px 10px; }
+  .prod-c-vol, .prod-c-exp{ display:none; }
+  .prod-c-price{ font-size:12px; }
+}
+
+/* ═══ DRAG-POLISH-V1: подъём строки при перетаскивании (продукты + шаблоны) ═══ */
+.prod-row, .template-item{ transition: box-shadow .15s ease; }
+.prod-row{ cursor: grab; }
+.prod-row button, .prod-row input{ cursor: pointer; }
+.prod-row.dragging, .template-item.dragging{ opacity:.95; }
+
+/* ═══ НАСТРОЙКИ: drag-reorder продуктов и шаблонов (в стиле мобильного навбара) ═══ */
+.gih-prod-list{ display:flex; flex-direction:column; gap:8px; }
+.prod-head, .prod-row{ display:grid; grid-template-columns:30px 40px minmax(0,1fr) 76px 84px 56px 84px; align-items:center; gap:10px; }
+.prod-head{ padding:6px 12px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#94a3b8; }
+.prod-row{ padding:10px 12px; background:#fff; border:1px solid #eef2f6; border-radius:14px; transition:box-shadow .15s ease, border-color .15s ease; }
+.prod-row:hover{ border-color:#e2e8f0; box-shadow:0 4px 14px rgba(15,23,42,.06); }
+.prod-row.is-dragging, .template-item.is-dragging{ cursor:grabbing; }
+.prod-handle{ display:flex; align-items:center; justify-content:center; color:#cbd5e1; cursor:grab; transition:color .15s ease; }
+.prod-handle:hover{ color:#64748b; }
+.prod-c-emo, .prod-c-act{ display:flex; }
+.prod-c-act{ justify-content:flex-end; gap:2px; }
+.prod-c-price{ text-align:right; font-variant-numeric:tabular-nums; color:#334155; font-size:13px; }
+.prod-c-vol{ color:#64748b; font-size:13px; }
+.prod-c-exp{ text-align:center; }
+.template-item{ position:relative; }
+@media (max-width:768px){
+  .prod-head{ display:none; }
+  .prod-row{ grid-template-columns:28px 36px minmax(0,1fr) auto auto; gap:8px; padding:9px 10px; }
+  .prod-c-vol, .prod-c-exp{ display:none; }
+  .prod-c-price{ font-size:12px; }
+}
+
+/* ═══ НАСТРОЙКИ: СПИСОК ПРОДУКТОВ (карточки вместо таблицы) ═══ */
+#products-table-container{ padding:12px !important; }
+.prod-list{ display:flex; flex-direction:column; gap:8px; }
+.prod-row{
+display:flex; align-items:center; gap:10px;
+padding:10px 12px; border:1.5px solid var(--border); border-radius:12px;
+background:#fff; position:relative;
+transition:border-color .15s ease, box-shadow .15s ease;
+}
+.prod-row:hover{ border-color:#cbd5e1; box-shadow:0 3px 10px rgba(15,23,42,.05); }
+.prod-row-main{ display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+.prod-row-emoji{ width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.prod-row-info{ min-width:0; flex:1; }
+.prod-row-name{ font-size:13.5px; font-weight:600; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.prod-row-meta{ font-size:11.5px; color:#64748b; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.prod-row-expiry{ font-size:10px; font-weight:700; padding:3px 8px; border-radius:8px; flex-shrink:0; }
+.prod-row-expiry.on{ background:#d1fae5; color:#065f46; }
+.prod-row-expiry.off{ background:#f1f5f9; color:#94a3b8; }
+.prod-row-actions{ display:flex; gap:2px; flex-shrink:0; }
+.prod-row-actions .btn{ padding:6px 8px; min-height:0; }
+@media (max-width:768px){
+.prod-row-actions .btn{ min-height:34px !important; padding:7px !important; width:34px; justify-content:center; }
+}
+
+/* ═══ НАСТРОЙКИ: DRAG-AND-DROP В СТИЛЕ МОБИЛЬНОГО НАВБАРА (продукты + шаблоны) ═══
+Хват за .drag-handle; перетаскиваемый «всплывает» тенью, соседи плавно расступаются. */
+.drag-handle{
+cursor:grab; touch-action:none; user-select:none;
+color:#cbd5e1; display:flex; align-items:center; justify-content:center;
+padding:4px; border-radius:8px; flex-shrink:0;
+transition:color .15s ease, background .15s ease;
+}
+.drag-handle:hover{ color:#64748b; background:#f1f5f9; }
+.drag-handle:active{ cursor:grabbing; }
+.is-dragging-list{ user-select:none; }
+.is-dragging-list > *{
+transition:transform .22s cubic-bezier(.32,.72,.24,1), opacity .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.is-dragging-list > .is-drag-source{
+transition:box-shadow .2s ease, background .2s ease, border-color .2s ease;
+box-shadow:0 12px 30px rgba(15,23,42,.22);
+border-color:#c7d2fe; background:#fff;
+z-index:5; opacity:1 !important;
+}
+.is-dragging-list > *:not(.is-drag-source){ opacity:.45; }

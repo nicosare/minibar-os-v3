@@ -5,7 +5,7 @@ const router = Router();
 
 router.get('/', async (req, res) => {
   try {
-    const products = await prisma.product.findMany({ orderBy: { name: 'asc' } });
+    const products = await prisma.product.findMany({ orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] });
     res.json(products);
   } catch (err) {
     console.error('GET products error:', err);
@@ -50,6 +50,15 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.put('/reorder', async (req, res) => {
+  try {
+    const order = Array.isArray(req.body.order) ? req.body.order : [];
+    await prisma.$transaction(order.map((id, idx) =>
+      prisma.product.update({ where: { id: parseInt(id, 10) }, data: { sortOrder: idx } })
+    ));
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
 router.put('/:id', async (req, res) => {
   try {
     const { name, price, volume, unit, hasExpiry, emoji, bgColor, category } = req.body;

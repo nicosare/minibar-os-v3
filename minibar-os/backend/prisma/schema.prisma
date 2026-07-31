@@ -17,6 +17,7 @@ model Product {
   bgColor    String?  @default("slate") @map("bg_color")
   category   String?  @default("Напитки")
   hasExpiry  Boolean  @default(true) @map("has_expiry")
+  sortOrder    Int       @default(0) @map("sort_order")
   createdAt  DateTime @default(now()) @map("created_at")
 
   templateItems     TemplateItem[]
