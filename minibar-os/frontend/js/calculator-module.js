@@ -89,7 +89,10 @@ renderDrawerBill();
       if (!grouped[cat]) grouped[cat] = [];
       grouped[cat].push(p);
     });
-    return CATEGORY_ORDER.map(name => ({ name, items: grouped[name] || [] }));
+    return CATEGORY_ORDER.map(name => ({
+      name,
+      items: (grouped[name] || []).sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+    }));
   }
 
   function renderTabs() {

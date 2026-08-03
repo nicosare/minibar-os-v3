@@ -6,21 +6,22 @@
 <title>MiniBar OS</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css" />
-<link rel="stylesheet" href="styles.css?v=m35" />
+<link rel="stylesheet" href="styles.css??v=m65" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body class="antialiased">
 
 <div class="flex h-screen overflow-hidden">
   <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col">
+  <aside class="sidebar bg-white border-r border-slate-200 flex flex-col">
     <div class="p-5 border-b border-slate-100">
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-          <i data-lucide="box" class="w-4 h-4 text-white"></i>
-        </div>
-        <span class="font-bold text-slate-900">MiniBar OS</span>
-      </div>
+      <button type="button" class="sidebar-brand flex items-center gap-2 w-full text-left" aria-label="Свернуть/развернуть меню" data-sidebar-toggle>
+        <span class="sidebar-brand-icon w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 relative">
+          <i data-lucide="box" class="sidebar-brand-main-icon w-5 h-5 text-white"></i>
+          <i data-lucide="chevron-left" class="sidebar-brand-toggle-icon w-4 h-4 text-white"></i>
+        </span>
+        <span class="sidebar-brand-text font-bold text-slate-900 whitespace-nowrap">MiniBar OS</span>
+      </button>
     </div>
     <nav class="flex-1 p-3 overflow-y-auto scrollbar">
       <!-- Обзор -->
@@ -97,15 +98,6 @@
         <span>Настройки</span>
       </a>
     </nav>
-    <div class="p-3 border-t border-slate-100">
-      <div class="flex items-center gap-3 px-3 py-2">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center text-white font-semibold text-sm">А</div>
-        <div class="flex-1 min-w-0">
-          <div class="text-sm font-medium text-slate-900 truncate">Анна</div>
-          <div class="text-xs text-slate-500">Администратор</div>
-        </div>
-      </div>
-    </div>
   </aside>
 
   <!-- Main Content -->
@@ -356,8 +348,11 @@
 
 <!-- INVENTORY -->
 <section id="view-inventory" class="tab-content fade-in">
-  <!-- Вкладки категорий -->
-  <div class="cat-tabs blue" id="inventory-tabs"></div>
+<div class="flex items-start justify-between mb-6">
+<h1 class="text-2xl font-bold text-slate-900">Инвентаризация</h1><button id="inventory-summary-toggle" class="btn btn-outline inv-summary-toggle"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Сводка <span id="inventory-toggle-count" class="inv-toggle-count hidden">0</span></button>
+</div>
+<!-- Вкладки категорий скрыты: порядок берётся из настроек -->
+<div class="cat-tabs blue" id="inventory-tabs"></div>
 
   <div class="split-layout">
     <!-- Продукты -->
@@ -375,9 +370,7 @@
         <i data-lucide="clipboard-list"></i>
         <p>Введите количество продуктов</p>
       </div>
-      <div id="inventory-summary-list" class="side-panel-body hidden"></div>
-      
-    </aside>
+      <div id="inventory-summary-list" class="side-panel-body hidden"></div><div class="side-panel-footer"><div class="total-row"><span class="total-row-label">Позиций</span><span class="total-row-value" id="inventory-total-count">0</span></div></div></aside>
   </div>
 
   <!-- Мобильная мини-панель -->
@@ -838,21 +831,21 @@
 </div>
 
 
-<script src="config.js?v=m35"></script>
-<script src="js/utils.js?v=m35"></script>
-<script src="js/app-core.js?v=m35"></script>
-<script src="js/excise-module.js?v=m35"></script>
-<script src="js/deadlines-module.js?v=m35"></script>
-<script src="js/stat-fill.js?v=m35"></script>
-<script src="js/settings-module.js?v=m35"></script>
-<script src="js/calculator-module.js?v=m35"></script>
-<script src="js/inventory-module.js?v=m35"></script>
-<script src="js/dashboard-module.js?v=m35"></script>
-<script src="js/lists-module.js?v=m35"></script>
-<script src="js/history-module.js?v=m35"></script>
-<script src="js/route-handlers.js?v=m35"></script>
-<script src="js/gih-module.js?v=m35"></script>
-<script src="js/init.js?v=m35"></script>
+<script src="config.js??v=m65"></script>
+<script src="js/utils.js??v=m65"></script>
+<script src="js/app-core.js??v=m65"></script>
+<script src="js/excise-module.js??v=m65"></script>
+<script src="js/deadlines-module.js??v=m65"></script>
+<script src="js/stat-fill.js??v=m65"></script>
+<script src="js/settings-module.js??v=m65"></script>
+<script src="js/calculator-module.js??v=m65"></script>
+<script src="js/inventory-module.js??v=m65"></script>
+<script src="js/dashboard-module.js??v=m65"></script>
+<script src="js/lists-module.js??v=m65"></script>
+<script src="js/history-module.js??v=m65"></script>
+<script src="js/route-handlers.js??v=m65"></script>
+<script src="js/gih-module.js??v=m65"></script>
+<script src="js/init.js??v=m65"></script>
 
 
 <!-- ═══ МОБИЛЬНЫЙ ТАБ-БАР (только телефон) ═══ -->
@@ -881,6 +874,6 @@
   </div>
 </div>
 
-<script src="js/mobile-nav.js?v=m35"></script>
+<script src="js/mobile-nav.js??v=m65"></script>
 </body>
 </html>

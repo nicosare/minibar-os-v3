@@ -48,6 +48,12 @@ function renderFactory(){
   const box = $('gih-factory'); if(!box) return;
   if(!factoryOpen){ box.classList.add('hidden'); box.innerHTML=''; return; }
   box.classList.remove('hidden');
+
+  const prevInput = $('gih-finput');
+  const wasFocused = !!prevInput && document.activeElement === prevInput;
+  const caretStart = prevInput ? prevInput.selectionStart : 0;
+  const caretEnd = prevInput ? prevInput.selectionEnd : 0;
+
   const room = factory.roomId ? roomById(factory.roomId) : null;
   const items = room && room.template ? (room.template.items||[]) : [];
   const byCat = {};
@@ -56,35 +62,49 @@ function renderFactory(){
   const prodCount = Object.values(factory.counts).filter(n=>n>0).length;
   const gridHtml = room
     ? (CATS.filter(c=>byCat[c]&&byCat[c].length).map(c=>`
-      <div class="gih-fcat"><div class="gih-fcat-t">${c}</div><div class="gih-fcat-grid">
-        ${byCat[c].map(it=>{ const pid=it.productId; const q=factory.counts[pid]||0; const max=it.qty||99;
-          return `<button type="button" class="gih-fitem${q>0?' has':''}" data-act="ftap" data-pid="${pid}" data-max="${max}">
-            <span class="gih-fitem-emo ${cc(it.product.bgColor)}">${emo(it.product)}</span>
-            <span class="gih-fitem-name" title="${escapeHtml(it.product.name)}">${escapeHtml(it.product.name)}</span>
-            <span class="gih-fitem-q${q>0?'':' zero'}">${q}</span></button>`; }).join('')}
-      </div></div>`).join('')) || '<div class="gih-fempty">У этого номера нет шаблона наполнения</div>'
+      <div class="gih-fcat">
+        <div class="gih-fcat-t">${c}</div>
+        <div class="gih-fcat-grid">
+          ${byCat[c].map(it=>{ const pid=it.productId; const q=factory.counts[pid]||0; const max=it.qty||99;
+            return `<button type="button" class="gih-fitem${q>0?' has':''}" data-act="ftap" data-pid="${pid}" data-max="${max}">
+              <span class="gih-fitem-emo ${cc(it.product.bgColor)}">${emo(it.product)}</span>
+              <span class="gih-fitem-name" title="${escapeHtml(it.product.name)}">${escapeHtml(it.product.name)}</span>
+              <span class="gih-fitem-q${q>0?'':' zero'}">${q}</span>
+            </button>`; }).join('')}
+        </div>
+      </div>`).join('')) || '<div class="gih-fempty">У этого номера нет шаблона наполнения</div>'
     : '<div class="gih-fempty">Введите номер, чтобы увидеть продукты его шаблона</div>';
   const isEdit = !!factory.editId;
   box.innerHTML = `
     <div class="gih-fhead">
-      <div class="gih-fhead-t"><i data-lucide="${isEdit?'pencil':'clipboard-plus'}" class="w-4 h-4"></i> ${isEdit?'Редактирование записи':'Новая запись'}</div>
+      <div class="gih-ac-field">
+        <i data-lucide="search" class="w-4 h-4 gih-ac-ico"></i>
+        <input id="gih-finput" class="gih-ac-input" inputmode="numeric" autocomplete="off" placeholder="Номер комнаты…" value="${escapeHtml(factory.input||'')}">
+        <div id="gih-ac" class="gih-ac"></div>
+      </div>
       <button type="button" class="gih-x" data-act="fclose" aria-label="Закрыть"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
     <div class="gih-fbody">
-      <div class="gih-ac-wrap">
-        <label class="gih-ac-label">Номер комнаты</label>
-        <div class="gih-ac-field"><i data-lucide="search" class="w-4 h-4 gih-ac-ico"></i>
-          <input id="gih-finput" class="gih-ac-input" inputmode="numeric" autocomplete="off" placeholder="Начните вводить номер…" value="${escapeHtml(factory.input||'')}"></div>
-        <div id="gih-ac" class="gih-ac"></div>
-      </div>
       <div class="gih-fgrid">${gridHtml}</div>
     </div>
     <div class="gih-ffoot">
       <span class="gih-ffoot-info">${room?('<b>'+escapeHtml(String(room.number))+'</b> · '):''}${prodCount} ${pluralize(prodCount,['позиция','позиции','позиций'])} · ${totalQty} шт</span>
       <button type="button" class="btn btn-primary" data-act="fcreate" ${factory.roomId&&totalQty>0?'':'disabled'}><i data-lucide="${isEdit?'save':'plus'}" class="w-4 h-4"></i> ${isEdit?'Сохранить изменения':'Создать запись'}</button>
     </div>`;
+
+  if (wasFocused) {
+    const nextInput = $('gih-finput');
+    if (nextInput) {
+      requestAnimationFrame(() => {
+        nextInput.focus();
+        try { nextInput.setSelectionRange(caretStart, caretEnd); } catch (_) {}
+      });
+    }
+  }
+
   if (window.lucide) lucide.createIcons();
 }
+
 function acHtml(val){
   const v=(val||'').trim(); if(!v) return '';
   const matches = rooms.filter(r=>String(r.number).startsWith(v)).slice(0,8);
@@ -94,11 +114,22 @@ function acHtml(val){
 function selectRoom(id){
   factory.roomId=id; factory.counts={};
   const r=roomById(id); factory.input = r?String(r.number):factory.input;
-  renderFactory(); const ac=$('gih-ac'); if(ac) ac.innerHTML='';
+  const currentInput = $('gih-finput');
+  const shouldKeepFocus = !!currentInput && document.activeElement === currentInput;
+  renderFactory();
+  if (shouldKeepFocus) {
+    const nextInput = $('gih-finput');
+    if (nextInput) {
+      requestAnimationFrame(() => {
+        nextInput.focus();
+        try { nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); } catch (_) {}
+      });
+    }
+  }
+  const ac=$('gih-ac'); if(ac) ac.innerHTML='';
 }
 function legendWrap(){
   return `<div class="gih-legend">
-    <span><i class="gih-lg-pending"></i>Не размечено</span>
     <span><i class="gih-lg-replenished"></i>Пополнено</span>
     <span><i class="gih-lg-inplace"></i>На месте</span>
     <span><i class="gih-lg-out"></i>Выложили</span>
@@ -108,6 +139,9 @@ function pillHtml(it, disabled){
   const m = ITEM[it.itemStatus]||ITEM.pending;
   return `<button type="button" class="gih-pill ${m.cls}" data-act="pill" data-iid="${it.id}" ${disabled?'disabled':''} title="${ITEM_FULL[it.itemStatus]}">
     <span class="gih-pill-emo ${cc(it.bgColor)}">${emo(it)}</span><span class="gih-pill-name">${escapeHtml(it.name)}</span></button>`;
+}
+function noteBtnHtml(d){
+  return `<button type="button" class="gih-note-btn" data-act="notes" data-did="${d.id}">${(d.notes&&d.notes.trim())?escapeHtml(d.notes):'Добавить комментарий'}</button>`;
 }
 function pillsWrap(d){
   const mOn = modeActive(d);
@@ -121,14 +155,23 @@ function modesWrap(d){
 }
 function footWrap(d){
   const ok = canSave(d);
-  const hint = ok ? '' : '<span class="gih-save-hint">Разметьте все позиции или выберите режим</span>';
-  return `<div class="gih-card-foot" data-role="foot" data-did="${d.id}">${hint}<button type="button" class="btn btn-primary gih-save" data-act="save" data-id="${d.id}" ${ok?'':'disabled'}><i data-lucide="save" class="w-4 h-4"></i> Сохранить</button></div>`;
+  if(!ok) return '';
+  return `<div class="gih-card-foot" data-role="foot" data-did="${d.id}"><button type="button" class="btn btn-primary gih-save" data-act="save" data-id="${d.id}"><span class="gih-save-icon"><i data-lucide="save" class="w-4 h-4"></i></span> <span>Сохранить</span></button></div>`;
 }
 function patchDraftCard(d){
   const root = document.querySelector('.gih-card[data-did="'+d.id+'"]'); if(!root) return;
   const p=root.querySelector('[data-role="pills"]'); if(p) p.outerHTML=pillsWrap(d);
   const m=root.querySelector('[data-role="modes"]'); if(m) m.outerHTML=modesWrap(d);
-  const f=root.querySelector('[data-role="foot"]'); if(f) f.outerHTML=footWrap(d);
+  const n=root.querySelector('.gih-note-btn'); if(n) n.outerHTML = noteBtnHtml(d);
+  const f=root.querySelector('[data-role="foot"]');
+  const footHtml = footWrap(d);
+  if(f){
+    f.outerHTML = footHtml;
+  } else if(footHtml){
+    // if footer didn't exist (was hidden), append it and recreate icons
+    root.insertAdjacentHTML('beforeend', footHtml);
+    if (window.lucide) lucide.createIcons();
+  }
 }
 function draftHtml(d){
   return `<div class="gih-card gih-draft" data-did="${d.id}">
@@ -142,7 +185,7 @@ function draftHtml(d){
     </div>
     ${pillsWrap(d)}
     ${modesWrap(d)}
-    <textarea class="gih-notes" data-act="notes" data-did="${d.id}" placeholder="Комментарий к номеру…">${escapeHtml(d.notes||'')}</textarea>
+    <button type="button" class="gih-note-btn" data-act="notes" data-did="${d.id}">${(d.notes||'').trim()?escapeHtml(d.notes): 'Добавить комментарий'}</button>
     ${legendWrap()}
     ${footWrap(d)}
   </div>`;
@@ -156,14 +199,39 @@ function renderDrafts(){
   box.innerHTML = `<div class="gih-zone-t"><span>Несохранённые</span><b>${drafts.length}</b></div><div class="gih-cards">${drafts.map(draftHtml).join('')}</div>`;
   if (window.lucide) lucide.createIcons();
 }
-function doneBody(d){
-  if(d.gihRoomStatus){ return `<span class="gih-mode-tag gih-m-${d.gihRoomStatus}">${MODE_LABEL[d.gihRoomStatus]||d.gihRoomStatus}</span>${d.notes?('<div class="gih-done-note">'+escapeHtml(d.notes)+'</div>'):''}`; }
-  const groups={};
-  (d.gihItems||[]).forEach(it=>{ if(it.itemStatus==='pending')return; (groups[it.itemStatus]=groups[it.itemStatus]||[]).push(it.name); });
-  const order=['replenished','in_place','out','not_replenished'];
-  const lines=order.filter(k=>groups[k]).map(k=>`<div class="gih-done-line"><span class="gih-done-k gih-st-${k==='in_place'?'inplace':k==='not_replenished'?'not':k}">${ITEM_FULL[k]}</span><span class="gih-done-v">${groups[k].map(escapeHtml).join(', ')}</span></div>`).join('');
-  return (lines||'<div class="gih-mini-empty">Нет данных</div>') + (d.notes?('<div class="gih-done-note">'+escapeHtml(d.notes)+'</div>'):'');
+function formatDoneItems(items){
+  const groups = {};
+  items.forEach(it => {
+    const status = it.itemStatus || 'pending';
+    groups[status] = groups[status] || {};
+    groups[status][it.name] = (groups[status][it.name] || 0) + 1;
+  });
+  const order = ['replenished','in_place','out','not_replenished','pending'];
+  return order.filter(k => groups[k]).map(k => {
+    const productList = Object.entries(groups[k]).map(([name,qty]) => qty > 1 ? `${escapeHtml(name)} х${qty}` : escapeHtml(name));
+    const cls = 'gih-st-'+(k==='in_place'?'inplace':k==='not_replenished'?'not':k);
+    return `<div class="gih-done-line ${cls}"><span class="gih-done-k ${cls}">${ITEM_FULL[k]||k}</span><span class="gih-done-v">${productList.join(', ')}</span></div>`;
+  }).join('');
 }
+function formatDoneText(items){
+  const groups = {};
+  items.forEach(it => { groups[it.name] = (groups[it.name] || 0) + 1; });
+  return Object.entries(groups).map(([name,qty]) => qty>1?`${escapeHtml(name)} х${qty}`:escapeHtml(name)).join(', ');
+}
+function doneBody(d){
+const items = d.gihItems||[];
+const itemsText = formatDoneText(items);
+const modeTag = d.gihRoomStatus ? `<span class="gih-mode-tag gih-m-${d.gihRoomStatus}">${MODE_LABEL[d.gihRoomStatus]||d.gihRoomStatus}</span>` : '';
+const note = (d.notes && d.notes.trim()) ? `<div class="gih-done-note">${escapeHtml(d.notes)}</div>` : '';
+if (d.gihRoomStatus) {
+  const comment = itemsText ? `<div class="gih-done-comment">${itemsText}</div>` : '';
+  return `<div class="gih-done-products gih-done-withmode">${modeTag}${comment}${note}</div>`;
+}
+const itemsHtml = formatDoneItems(items);
+const productsBlock = itemsHtml ? `<div class="gih-done-products">${itemsHtml}</div>` : '<div class="gih-mini-empty">Нет данных</div>';
+return productsBlock + note;
+}
+
 function doneHtml(d){
   return `<div class="gih-card gih-done" data-did="${d.id}">
     <div class="gih-card-head">
@@ -234,9 +302,10 @@ function bind(){
     factory.input=e.target.value; const v=factory.input.trim();
     const exact=v?rooms.find(r=>String(r.number)===v):null;
     if(exact){ selectRoom(exact.id); return; }
+    // avoid full re-render on each keystroke to preserve focus
     factory.roomId=null; factory.counts={}; const caret=e.target.selectionStart;
-    renderFactory(); const ac=$('gih-ac'); if(ac) ac.innerHTML=acHtml(v);
-    const ni=$('gih-finput'); if(ni){ ni.focus(); try{ni.setSelectionRange(caret,caret);}catch(_){} }
+    const ac=$('gih-ac'); if(ac) ac.innerHTML=acHtml(v);
+    try{ e.target.setSelectionRange(caret, caret); }catch(_){}
   });
   const dr=$('gih-drafts');
   dr?.addEventListener('click', e=>{
@@ -246,13 +315,9 @@ function bind(){
     if(!d) return;
     if(act==='edit-draft'){ openFactoryEdit(d); return; }
     if(act==='save'){ saveDraft(d.id); return; }
+    if(act==='notes'){ const next = window.prompt('Комментарий к номеру', d.notes||''); if(next===null) return; d.notes=next; patchDraftCard(d); return; }
     if(act==='mode'){ if(productsDirty(d))return; const k=b.dataset.mode; d._mode=d._mode===k?null:k; patchDraftCard(d); return; }
     if(act==='pill'){ if(modeActive(d))return; const iid=parseInt(b.dataset.iid,10); const it=d.gihItems.find(x=>x.id===iid); if(!it)return; const i=CYCLE.indexOf(it.itemStatus); it.itemStatus=CYCLE[(i+1)%CYCLE.length]; patchDraftCard(d); return; }
-  });
-  dr?.addEventListener('input', e=>{
-    if(!e.target.classList.contains('gih-notes')) return;
-    const card=e.target.closest('.gih-card'); const did=card?parseInt(card.dataset.did,10):NaN; const d=drafts.find(x=>x.id===did);
-    if(d) d.notes=e.target.value;
   });
   const dn=$('gih-dones');
   dn?.addEventListener('click', e=>{

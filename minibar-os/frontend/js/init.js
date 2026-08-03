@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const sidebar = document.querySelector('aside.sidebar');
+  const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
+  if (sidebar && sidebarToggle) {
+    sidebarToggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      const expanded = sidebar.classList.toggle('is-expanded');
+      sidebarToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+  }
+
   window.addEventListener('popstate', (event) => {
     const route = event.state?.route || App.router.currentFromUrl();
     App.router.go(route, false);
